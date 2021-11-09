@@ -1,7 +1,6 @@
 import pygsheets
 import pandas as pd 
 import os
-import ipdb
 import warnings
 
 class SheetLogger:
