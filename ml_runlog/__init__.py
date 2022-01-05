@@ -39,7 +39,7 @@ def init(creds_path_, sheet_name_, worksheet_idx_=0):
     else:
         monitor_health(worksheet, sno)
 
-def log_data(**kwargs):
+def log_data(offset=0, **kwargs):
     global sno 
     global column_idx
     global worksheet 
@@ -56,5 +56,5 @@ def log_data(**kwargs):
         kwargs[first_key] = [kwargs[first_key]]
         df = pd.DataFrame(kwargs)
 
-    worksheet.set_dataframe(df, (sno + 1, column_idx), copy_head=False)
-    column_idx += len(kwargs)
+    worksheet.set_dataframe(df, (sno + 1, column_idx + offset), copy_head=False)
+    column_idx += len(kwargs) + offset
