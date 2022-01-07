@@ -13,7 +13,7 @@ worksheet = None
 sno = None
 sno_logged = False
 
-def init(creds_path_, sheet_name_, worksheet_idx_=0, log_heartbeat=True):
+def init(creds_path_, sheet_name_, worksheet_idx_=0):
     global creds_path
     global sheet_name
     global worksheet_idx
@@ -33,14 +33,7 @@ def init(creds_path_, sheet_name_, worksheet_idx_=0, log_heartbeat=True):
     sno = get_sno(worksheet)
     column_idx = 2 # 0th column is for logging heartbeat
 
-    if log_heartbeat:
-        if os.fork() > 0:
-            # Parent process
-            return 
-        else:
-            monitor_health(worksheet, sno)
-
-def log_data(offset=0, increment_cols=True, nonessential=False, **kwargs):
+def log_data(offset=0, increment_cols=True, **kwargs):
     global sno 
     global column_idx
     global worksheet 
@@ -57,25 +50,7 @@ def log_data(offset=0, increment_cols=True, nonessential=False, **kwargs):
         kwargs[first_key] = [kwargs[first_key]]
         df = pd.DataFrame(kwargs)
 
-    if os.fork() == 0:
-        if nonessential:
-            try:
-                # Do this in a separate process to prevent blocking
-                worksheet.set_dataframe(df, (sno + 1, column_idx + offset), copy_head=False)
-                exit() 
-            except Exception as e:
-                print(e)
-        else:
-            while True:
-                try:
-                    # Do this in a separate process to prevent blocking
-                    worksheet.set_dataframe(df, (sno + 1, column_idx + offset), copy_head=False)
-                    exit()
-                except Exception as e:
-                    print(e)
-                    time.sleep(1)
-
-        
+        worksheet.set_dataframe(df, (sno + 1, column_idx + offset), copy_head=False)
 
     if increment_cols:
         column_idx += len(kwargs) + offset
