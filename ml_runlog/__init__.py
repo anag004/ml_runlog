@@ -11,6 +11,7 @@ worksheet_idx = -1
 gc = None
 worksheet = None
 sno = None
+sheet = None
 sno_logged = False
 
 def init(creds_path_, sheet_name_, worksheet_idx_=0):
@@ -31,7 +32,7 @@ def init(creds_path_, sheet_name_, worksheet_idx_=0):
     sheet = gc.open(sheet_name)
     worksheet = sheet[worksheet_idx]
     sno = get_sno(worksheet)
-    column_idx = 2 # 0th column is for logging heartbeat
+    column_idx = 1 
 
 def log_data(offset=0, increment_cols=True, **kwargs):
     global sno 
