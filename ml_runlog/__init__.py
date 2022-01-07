@@ -51,7 +51,7 @@ def log_data(offset=0, increment_cols=True, **kwargs):
         kwargs[first_key] = [kwargs[first_key]]
         df = pd.DataFrame(kwargs)
 
-        worksheet.set_dataframe(df, (sno + 1, column_idx + offset), copy_head=False)
+    worksheet.set_dataframe(df, (sno + 1, column_idx + offset), copy_head=False)
 
     if increment_cols:
         column_idx += len(kwargs) + offset
