@@ -1,3 +1,4 @@
+from numpy import e
 from .main import *
 import pygsheets
 import os
@@ -11,7 +12,7 @@ worksheet = None
 sno = None
 sno_logged = False
 
-def init(creds_path_, sheet_name_, worksheet_idx_=0):
+def init(creds_path_, sheet_name_, worksheet_idx_=0, log_heartbeat=True):
     global creds_path
     global sheet_name
     global worksheet_idx
@@ -31,13 +32,12 @@ def init(creds_path_, sheet_name_, worksheet_idx_=0):
     sno = get_sno(worksheet)
     column_idx = 2 # 0th column is for logging heartbeat
 
-    pid = os.fork()
-
-    if pid > 0:
-        # Parent process
-        return 
-    else:
-        monitor_health(worksheet, sno)
+    if log_heartbeat:
+        if os.fork() > 0:
+            # Parent process
+            return 
+        else:
+            monitor_health(worksheet, sno)
 
 def log_data(offset=0, increment_cols=True, **kwargs):
     global sno 
@@ -56,7 +56,14 @@ def log_data(offset=0, increment_cols=True, **kwargs):
         kwargs[first_key] = [kwargs[first_key]]
         df = pd.DataFrame(kwargs)
 
-    worksheet.set_dataframe(df, (sno + 1, column_idx + offset), copy_head=False)
-    
+    if os.fork() == 0:
+        try:
+            # Do this in a separate process to prevent blocking
+            worksheet.set_dataframe(df, (sno + 1, column_idx + offset), copy_head=False)
+        except e:
+            print(e)
+
+        exit() 
+
     if increment_cols:
         column_idx += len(kwargs) + offset
