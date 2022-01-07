@@ -3,6 +3,7 @@ from .main import *
 import pygsheets
 import os
 import pandas as pd
+import time
 
 creds_path = None
 sheet_name = None
@@ -39,7 +40,7 @@ def init(creds_path_, sheet_name_, worksheet_idx_=0, log_heartbeat=True):
         else:
             monitor_health(worksheet, sno)
 
-def log_data(offset=0, increment_cols=True, **kwargs):
+def log_data(offset=0, increment_cols=True, nonessential=False, **kwargs):
     global sno 
     global column_idx
     global worksheet 
@@ -57,13 +58,24 @@ def log_data(offset=0, increment_cols=True, **kwargs):
         df = pd.DataFrame(kwargs)
 
     if os.fork() == 0:
-        try:
-            # Do this in a separate process to prevent blocking
-            worksheet.set_dataframe(df, (sno + 1, column_idx + offset), copy_head=False)
-        except e:
-            print(e)
+        if nonessential:
+            try:
+                # Do this in a separate process to prevent blocking
+                worksheet.set_dataframe(df, (sno + 1, column_idx + offset), copy_head=False)
+                exit() 
+            except Exception as e:
+                print(e)
+        else:
+            while True:
+                try:
+                    # Do this in a separate process to prevent blocking
+                    worksheet.set_dataframe(df, (sno + 1, column_idx + offset), copy_head=False)
+                    exit()
+                except Exception as e:
+                    print(e)
+                    time.sleep(1)
 
-        exit() 
+        
 
     if increment_cols:
         column_idx += len(kwargs) + offset
