@@ -25,7 +25,11 @@ def init(creds_path_, sheet_name_, worksheet_idx_=0):
 
     creds_path = creds_path_
     sheet_name = sheet_name_
-    worksheet_idx = worksheet_idx_
+    worksheet_idx = worksheet_idx_      
+
+    gc = pygsheets.authorize(service_file=creds_path) 
+    sheet = gc.open(sheet_name)
+    worksheet = sheet[worksheet_idx]
 
 def log_data(offset=0, increment_cols=True, verify_timeout=None, **kwargs):
     global sno 
