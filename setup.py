@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='ml_runlog',
-      version='2.0',
+      version='2.2',
       description='Simple script to log experiments to Google Sheets. Version 2.0 is cleaner, has a class based structure and supports logging multiple rows at once.',
       url='https://github.com/anag004/ml-runlog',
       author='Ananye Agarwal',

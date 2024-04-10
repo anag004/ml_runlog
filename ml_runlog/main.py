@@ -21,7 +21,11 @@ class MLRunlog:
         return list(range(sno, sno + n))
 
 
-    def log_data(self, data_list=[], verify_timeout=None, sno=None):
+    def log_data(self, data_list=[], verify_timeout=None, sno=None, verify_col_idx=None):
+        """
+        verify_col_idx: index of the column to verify the data. This is 0 indexed. The data in this column should ideally be unique and a string
+        """
+
         if len(data_list) == 0:
             return
         
@@ -43,19 +47,22 @@ class MLRunlog:
         if verify_timeout:
             start_time = time.time() 
             while time.time() - start_time < verify_timeout:
-                if self.get_data_at_row(sno).equals(data_df.iloc[[0]]):
+                cell_value = self.get_data_at_cell(sno, verify_col_idx)
+                expected_value = data_df.iloc[0, verify_col_idx + 1] # df is zero-indexed but the first column is sno so we do +1
+
+                if cell_value == expected_value:
                     print("Data logged successfully")
                     return
                 print("Data not found, retrying")
                 time.sleep(1)   
             raise Exception("Data not found after timeout") 
         
-    def get_data_at_row(self, sno):
-        sheet = self.gc.open(self.sheet_name)
-        worksheet = sheet[self.worksheet_idx]
-        df = worksheet.get_as_df()
-        
-        return df[df['sno'] == sno].reset_index(drop=True)
+    def get_data_at_cell(self, row, col):
+        worksheet = self.gc.open(self.sheet_name)[self.worksheet_idx]
+        # sno in the sheets start from 1 and pygsheets assumes the first row (with the header) is 1 since it is 1 indexed       
+        # verify_col_idx is 0 indexed but the first column in the sheet is 1 indexed so we do +1
+        # first column is sno so we do +1 aga
+        return worksheet.cell((row + 1, col + 2)).value
 
     def move_sno_to_left(self, df):
         cols = df.columns.tolist()
