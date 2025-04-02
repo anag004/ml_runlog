@@ -6,7 +6,7 @@ This package is a wrapper around `pygsheets` and uses the google sheets API to a
 
 ## Installation
 
-- Follow instructions from https://pyshark.com/google-sheets-api-using-python/ to make a google cloud console account (non CMU id)
+- Follow instructions to make a google cloud console account (non CMU id)
 - Use these instructions to make a service account and get a `credentials.json`: https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account
 - Make the spreadsheet and share it to the client email in the service account credentials
 - Run `pip install ml_runlog` to install the package
